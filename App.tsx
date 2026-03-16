@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { IntakeData } from './types';
 import { INITIAL_DATA, STEPS } from './constants';
 import StepRenderer from './components/StepRenderer';
 import Sidebar from './components/Sidebar';
-import { Save, Trash2, ChevronLeft, ChevronRight, CheckCircle, Download, FileText, Loader } from 'lucide-react';
+import { Save, Trash2, ChevronLeft, ChevronRight, CheckCircle, Download, FileText, Loader, Upload, FolderOpen } from 'lucide-react';
 
 const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL as string;
 const MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL as string;
@@ -21,6 +21,7 @@ const App: React.FC = () => {
   const [formData, setFormData] = useState<IntakeData>(INITIAL_DATA);
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Post-submission state
   const [phase, setPhase] = useState<Phase>('form');
@@ -80,6 +81,38 @@ const App: React.FC = () => {
       setCurrentStepId(1);
       setErrors({});
     }
+  };
+
+  const exportAsJson = () => {
+    const json = JSON.stringify(formData, null, 2);
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const company = formData.company_identity?.company_legal_name?.replace(/\s+/g, '_') || 'intake';
+    a.href = url;
+    a.download = `${company}_intake.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const loadFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target?.result as string);
+        setFormData(parsed);
+        setCurrentStepId(1);
+        setErrors({});
+        localStorage.setItem('handbook_intake_draft', JSON.stringify(parsed));
+      } catch {
+        alert('Invalid JSON file — could not load.');
+      }
+    };
+    reader.readAsText(file);
+    // Reset input so the same file can be reloaded
+    e.target.value = '';
   };
 
   const handleFieldChange = useCallback((path: string, value: any) => {
@@ -539,9 +572,12 @@ const App: React.FC = () => {
               {submitError && <p className="mt-4 text-sm text-rose-600">{submitError}</p>}
             </div>
             <div className="p-6 md:px-8 py-6 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-4 items-center justify-between">
-              <div className="flex gap-2">
+              <input ref={fileInputRef} type="file" accept=".json" className="hidden" onChange={loadFromJson} />
+              <div className="flex gap-2 flex-wrap">
                 <button onClick={() => alert('Saved!')} className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg transition"><Save className="w-4 h-4 mr-2" /> Save</button>
                 <button onClick={clearDraft} className="inline-flex items-center px-4 py-2 text-sm font-medium text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-100 rounded-lg transition"><Trash2 className="w-4 h-4 mr-2" /> Clear</button>
+                <button onClick={exportAsJson} className="inline-flex items-center px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded-lg transition"><Download className="w-4 h-4 mr-2" /> Export JSON</button>
+                <button onClick={() => fileInputRef.current?.click()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 border border-indigo-100 rounded-lg transition"><FolderOpen className="w-4 h-4 mr-2" /> Load JSON</button>
               </div>
               <div className="flex gap-3">
                 {currentIndexInVisible > 0 && <button onClick={prevStep} className="inline-flex items-center px-6 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg font-semibold transition shadow-sm"><ChevronLeft className="w-5 h-5 mr-1" /> Back</button>}
