@@ -142,14 +142,20 @@ export const INITIAL_DATA: IntakeData = {
       foreseeable_leave_notice_method: 'UseCallOutOnly',
       foreseeable_leave_notice_method_other_text: '',
       foreseeable_leave_notice_timing: 'AsSoonAsPracticable',
-      foreseeable_leave_notice_x_days: 0
+      foreseeable_leave_notice_x_days: 0,
+      fmla_min_leave_increment: '1Hour'
     },
     pay_practices: {
       workweek_definition: 'SundayToSaturday',
+      workweek_start_time: '',
       workweek_definition_other_text: '',
       overtime_approval_rule: 'PreApprovalRequired',
+      overtime_workday_start_time: '',
       payroll_deductions_authorization: 'WrittenAuthorizationRequired',
       payroll_deductions_authorization_other_text: ''
+    },
+    leave_and_conduct: {
+      consecutive_absence_days: 0
     },
     smoking_vaping: {
       smoking_vaping_policy: 'CompletelySmokeFreeIncludingVaping',
@@ -195,11 +201,15 @@ export const INITIAL_DATA: IntakeData = {
     pto_carryover_policy: '',
     pto_waiting_period: 'None',
     pto_waiting_period_other: '',
+    vacation_request_procedure: '',
     holiday_schedule: [],
     holiday_schedule_other_text: '',
+    holiday_list_text: '',
     holiday_business_closed_flag: false,
     closed_holidays_list: '',
-    holiday_pay_practice: ''
+    holiday_pay_practice: '',
+    bereavement_leave_days: 0,
+    floating_holiday_schedule: ''
   },
   special_modules: {
     company_vehicles_flag: false,

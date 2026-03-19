@@ -358,6 +358,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
               {data.other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_method === 'Other' && <Input label="Method Description" value={data.other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_method_other_text} onChange={(v) => onChange('other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_method_other_text', v)} required error={errors.leave_method_other} />}
               <Select label="Timing" value={data.other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_timing} onChange={(v) => onChange('other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_timing', v)} options={[{label:'As Soon As Practicable',value:'AsSoonAsPracticable'},{label:'X Days in Advance',value:'XDaysInAdvance'},{label:'Per Scheduling Policy',value:'PerSchedulingPolicy'},{label:'Follow Legal Only',value:'FollowLegalOnly'}]} required error={errors.leave_timing} />
               {data.other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_timing === 'XDaysInAdvance' && <Input label="X Days" type="number" value={data.other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_x_days} onChange={(v) => onChange('other_template_inputs.leave_notice_procedures.foreseeable_leave_notice_x_days', parseInt(v)||0)} required error={errors.leave_days} />}
+              <Select label="FMLA Minimum Intermittent Leave Increment" value={data.other_template_inputs.leave_notice_procedures.fmla_min_leave_increment} onChange={(v) => onChange('other_template_inputs.leave_notice_procedures.fmla_min_leave_increment', v)} options={[{label:'1 Hour (maximum allowed)',value:'1Hour'},{label:'30 Minutes',value:'30Minutes'},{label:'15 Minutes',value:'15Minutes'}]} required error={errors.fmla_increment} />
             </div>
           </section>
 
@@ -366,7 +367,9 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Select label="Workweek Definition" value={data.other_template_inputs.pay_practices.workweek_definition} onChange={(v) => onChange('other_template_inputs.pay_practices.workweek_definition', v)} options={[{label:'Sunday-Saturday',value:'SundayToSaturday'},{label:'Monday-Sunday',value:'MondayToSunday'},{label:'Other',value:'Other'}]} required error={errors.workweek} />
               {data.other_template_inputs.pay_practices.workweek_definition === 'Other' && <Input label="Workweek Description" value={data.other_template_inputs.pay_practices.workweek_definition_other_text} onChange={(v) => onChange('other_template_inputs.pay_practices.workweek_definition_other_text', v)} required error={errors.workweek_other} />}
+              <Input label="Workweek Start Time (e.g., 12:01 a.m. Monday)" placeholder="e.g., 12:01 a.m. on Monday" value={data.other_template_inputs.pay_practices.workweek_start_time} onChange={(v) => onChange('other_template_inputs.pay_practices.workweek_start_time', v)} />
               <Select label="Overtime Approval Rule" value={data.other_template_inputs.pay_practices.overtime_approval_rule} onChange={(v) => onChange('other_template_inputs.pay_practices.overtime_approval_rule', v)} options={[{label:'Pre-approval Required',value:'PreApprovalRequired'},{label:'Pre-approval Encouraged',value:'PreApprovalEncouraged'},{label:'Record All Hours (No Pre-approval)',value:'NoPreApprovalButRecordAllHours'},{label:'Not Sure',value:'NotSure'}]} required error={errors.ot_rule} />
+              <Input label="Overtime Workday Start Time (e.g., 12:01 a.m.)" placeholder="e.g., 12:01 a.m." value={data.other_template_inputs.pay_practices.overtime_workday_start_time} onChange={(v) => onChange('other_template_inputs.pay_practices.overtime_workday_start_time', v)} />
               <Select label="Payroll Deductions Auth" value={data.other_template_inputs.pay_practices.payroll_deductions_authorization} onChange={(v) => onChange('other_template_inputs.pay_practices.payroll_deductions_authorization', v)} options={[{label:'Written Required',value:'WrittenAuthorizationRequired'},{label:'Case by Case',value:'CaseByCase'},{label:'Other',value:'Other'}]} required error={errors.deduction} />
               {data.other_template_inputs.pay_practices.payroll_deductions_authorization === 'Other' && <Input label="Deduction Auth Description" value={data.other_template_inputs.pay_practices.payroll_deductions_authorization_other_text} onChange={(v) => onChange('other_template_inputs.pay_practices.payroll_deductions_authorization_other_text', v)} required error={errors.deduction_other} />}
             </div>
@@ -409,6 +412,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
               {data.other_template_inputs.dispute_resolution.internal_complaint_escalation_path === 'Other' && <Input label="Escalation Path Description" value={data.other_template_inputs.dispute_resolution.internal_complaint_escalation_other_text} onChange={(v) => onChange('other_template_inputs.dispute_resolution.internal_complaint_escalation_other_text', v)} required error={errors.disp_path_other} />}
               <RadioGroup label="Arbitration Policy in Place?" value={data.other_template_inputs.dispute_resolution.arbitration_policy_in_place} onChange={(v) => onChange('other_template_inputs.dispute_resolution.arbitration_policy_in_place', v)} options={[{label:'Yes',value:'Yes'},{label:'No',value:'No'},{label:'Not Sure',value:'NotSure'}]} inline required error={errors.disp_arb} />
               {data.other_template_inputs.dispute_resolution.arbitration_policy_in_place === 'Yes' && <Input label="Arbitration Questions Contact" value={data.other_template_inputs.dispute_resolution.arbitration_questions_contact} onChange={(v) => onChange('other_template_inputs.dispute_resolution.arbitration_questions_contact', v)} />}
+            </div>
+          </section>
+
+          <section>
+            <SubHeader>J) Standards of Conduct — Absence Threshold</SubHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input label="Consecutive Unexcused Absences Constituting a Violation (days)" type="number" placeholder="e.g., 3" value={data.other_template_inputs.leave_and_conduct.consecutive_absence_days} onChange={(v) => onChange('other_template_inputs.leave_and_conduct.consecutive_absence_days', parseInt(v)||0)} />
             </div>
           </section>
         </div>
@@ -455,7 +465,8 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
                 <TextArea label="Amount or Rate Description" value={data.pto_and_holidays.pto_amount_or_rate} onChange={(v) => onChange('pto_and_holidays.pto_amount_or_rate', v)} required error={errors.pto_rate} />
                 <TextArea label="Carryover Policy" value={data.pto_and_holidays.pto_carryover_policy} onChange={(v) => onChange('pto_and_holidays.pto_carryover_policy', v)} required error={errors.pto_carry} />
                 <Select label="Waiting Period" value={data.pto_and_holidays.pto_waiting_period} onChange={(v) => onChange('pto_and_holidays.pto_waiting_period', v)} options={[{label:'None',value:'None'},{label:'30 Days',value:'30Days'},{label:'60 Days',value:'60Days'},{label:'90 Days',value:'90Days'},{label:'Other',value:'Other'}]} required error={errors.pto_wait} />
-                {data.pto_and_holidays.pto_waiting_period === 'Other' && <Input label="Waiting Period Description" value={data.pto_and_holidays.pto_waiting_period_other} onChange={(v) => onChange('data.pto_and_holidays.pto_waiting_period_other', v)} required error={errors.pto_wait_other} />}
+                {data.pto_and_holidays.pto_waiting_period === 'Other' && <Input label="Waiting Period Description" value={data.pto_and_holidays.pto_waiting_period_other} onChange={(v) => onChange('pto_and_holidays.pto_waiting_period_other', v)} required error={errors.pto_wait_other} />}
+                <TextArea label="Vacation Request Procedure (e.g., submit request in HRIS portal with 2 weeks notice)" value={data.pto_and_holidays.vacation_request_procedure} onChange={(v) => onChange('pto_and_holidays.vacation_request_procedure', v)} />
               </div>
             )}
           </section>
@@ -468,12 +479,23 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
                 <Input label="Other Holidays Description" value={data.pto_and_holidays.holiday_schedule_other_text} onChange={(v) => onChange('pto_and_holidays.holiday_schedule_other_text', v)} required error={errors.hol_sched_other} />
               </div>
             )}
+            <div className="mt-4">
+              <Input label="Holiday List — Full Names for Handbook (e.g., New Year's Day, Memorial Day, ...)" placeholder="e.g., New Year's Day, Memorial Day, Independence Day, Labor Day, Thanksgiving Day, Christmas Day" value={data.pto_and_holidays.holiday_list_text} onChange={(v) => onChange('pto_and_holidays.holiday_list_text', v)} />
+            </div>
             <div className="mt-6">
               <RadioGroup label="Business Closed for Holidays?" value={data.pto_and_holidays.holiday_business_closed_flag} onChange={(v) => onChange('pto_and_holidays.holiday_business_closed_flag', v)} options={[{label:'Yes',value:true},{label:'No',value:false}]} inline required />
               {data.pto_and_holidays.holiday_business_closed_flag && <TextArea label="Closed Holidays List" value={data.pto_and_holidays.closed_holidays_list} onChange={(v) => onChange('pto_and_holidays.closed_holidays_list', v)} required error={errors.hol_list} />}
             </div>
             <div className="mt-6">
               <TextArea label="Holiday Pay Practice (Optional)" value={data.pto_and_holidays.holiday_pay_practice} onChange={(v) => onChange('pto_and_holidays.holiday_pay_practice', v)} />
+            </div>
+          </section>
+
+          <section>
+            <SubHeader>Bereavement &amp; Floating Holidays</SubHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input label="Bereavement Leave — Days Provided" type="number" placeholder="e.g., 3" value={data.pto_and_holidays.bereavement_leave_days} onChange={(v) => onChange('pto_and_holidays.bereavement_leave_days', parseInt(v)||0)} />
+              <TextArea label="Floating Holiday Schedule (if offered)" placeholder="e.g., 1 floating holiday if hired Jan–Jun; 0 if hired Jul–Dec" value={data.pto_and_holidays.floating_holiday_schedule} onChange={(v) => onChange('pto_and_holidays.floating_holiday_schedule', v)} />
             </div>
           </section>
         </div>

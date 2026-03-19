@@ -197,13 +197,19 @@ export interface IntakeData {
       foreseeable_leave_notice_method_other_text: string;
       foreseeable_leave_notice_timing: 'AsSoonAsPracticable' | 'XDaysInAdvance' | 'PerSchedulingPolicy' | 'FollowLegalOnly';
       foreseeable_leave_notice_x_days: number;
+      fmla_min_leave_increment: '15Minutes' | '30Minutes' | '1Hour';
     };
     pay_practices: {
       workweek_definition: 'SundayToSaturday' | 'MondayToSunday' | 'Other';
+      workweek_start_time: string;
       workweek_definition_other_text: string;
       overtime_approval_rule: 'PreApprovalRequired' | 'PreApprovalEncouraged' | 'NoPreApprovalButRecordAllHours' | 'NotSure';
+      overtime_workday_start_time: string;
       payroll_deductions_authorization: 'WrittenAuthorizationRequired' | 'CaseByCase' | 'Other';
       payroll_deductions_authorization_other_text: string;
+    };
+    leave_and_conduct: {
+      consecutive_absence_days: number;
     };
     smoking_vaping: {
       smoking_vaping_policy: 'CompletelySmokeFreeIncludingVaping' | 'DesignatedOutdoorAreasOnly' | 'OffsiteOnly' | 'Other';
@@ -249,11 +255,15 @@ export interface IntakeData {
     pto_carryover_policy: string;
     pto_waiting_period: 'None' | '30Days' | '60Days' | '90Days' | 'Other';
     pto_waiting_period_other: string;
+    vacation_request_procedure: string;
     holiday_schedule: string[];
     holiday_schedule_other_text: string;
+    holiday_list_text: string;
     holiday_business_closed_flag: boolean;
     closed_holidays_list: string;
     holiday_pay_practice: string;
+    bereavement_leave_days: number;
+    floating_holiday_schedule: string;
   };
   special_modules: {
     company_vehicles_flag: boolean;
