@@ -189,6 +189,7 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
             <Input label="Total Employees" type="number" value={data.workforce_counts.total_employees} onChange={(v) => onChange('workforce_counts.total_employees', parseInt(v)||0)} required error={errors.total} />
             <Input label="Full-Time" type="number" value={data.workforce_counts.full_time_employees} onChange={(v) => onChange('workforce_counts.full_time_employees', parseInt(v)||0)} required />
             <Input label="Part-Time" type="number" value={data.workforce_counts.part_time_employees} onChange={(v) => onChange('workforce_counts.part_time_employees', parseInt(v)||0)} required />
+            <Input label="Full-Time Defined As (hrs/week)" type="number" value={data.workforce_counts.full_time_hours_per_week} onChange={(v) => onChange('workforce_counts.full_time_hours_per_week', parseInt(v)||40)} helperText="Hours/week threshold for full-time classification" />
           </div>
           <div className="space-y-6">
             <RadioGroup label="Seasonal Employees?" value={data.workforce_counts.seasonal_employees_flag} onChange={(v) => onChange('workforce_counts.seasonal_employees_flag', v)} options={[{label:'Yes',value:true},{label:'No',value:false}]} inline required />

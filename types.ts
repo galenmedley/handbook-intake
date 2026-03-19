@@ -135,6 +135,7 @@ export interface IntakeData {
     total_employees: number;
     full_time_employees: number;
     part_time_employees: number;
+    full_time_hours_per_week: number;
     seasonal_employees_flag: boolean;
     seasonal_employee_details: string;
     temp_staff_flag: boolean;

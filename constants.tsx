@@ -81,6 +81,7 @@ export const INITIAL_DATA: IntakeData = {
     total_employees: 0,
     full_time_employees: 0,
     part_time_employees: 0,
+    full_time_hours_per_week: 40,
     seasonal_employees_flag: false,
     seasonal_employee_details: '',
     temp_staff_flag: false,
