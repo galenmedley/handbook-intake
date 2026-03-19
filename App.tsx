@@ -291,6 +291,9 @@ const App: React.FC = () => {
         req(d.special_modules.expense_reimbursement_process, 'exp_process');
         break;
       case 15:
+        // Contact Directory — all fields are optional
+        break;
+      case 16:
         if (!d.certification.certification_acknowledgment) newErrors.cert = 'Acknowledgment required.';
         break;
     }

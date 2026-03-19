@@ -38,6 +38,13 @@ export interface LocalityCount {
   headcount: number;
 }
 
+export interface ContactEntry {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+}
+
 export interface IntakeData {
   company_identity: {
     company_legal_name: string;
@@ -263,6 +270,19 @@ export interface IntakeData {
     expense_policy_upload: FileMetadata | null;
     existing_handbook_upload: FileMetadata | null;
     additional_policies_upload: FileMetadata | null;
+  };
+  contact_directory: {
+    ceo_president_owner: ContactEntry;
+    general_counsel: ContactEntry;
+    accounting_department: ContactEntry;
+    benefits_representative: ContactEntry;
+    eap: ContactEntry;
+    hotline: ContactEntry;
+    human_resources: ContactEntry;
+    media_contact: ContactEntry;
+    receptionist: ContactEntry;
+    security: ContactEntry;
+    travel_department: ContactEntry;
   };
   certification: {
     certification_acknowledgment: boolean;

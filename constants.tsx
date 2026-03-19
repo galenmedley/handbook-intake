@@ -1,6 +1,8 @@
 
 import React from 'react';
-import { IntakeData } from './types';
+import { IntakeData, ContactEntry } from './types';
+
+const EMPTY_CONTACT: ContactEntry = { name: '', title: '', email: '', phone: '' };
 
 export const US_STATES = [
   'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'DC', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'
@@ -215,6 +217,19 @@ export const INITIAL_DATA: IntakeData = {
     existing_handbook_upload: null,
     additional_policies_upload: null
   },
+  contact_directory: {
+    ceo_president_owner: { ...EMPTY_CONTACT },
+    general_counsel: { ...EMPTY_CONTACT },
+    accounting_department: { ...EMPTY_CONTACT },
+    benefits_representative: { ...EMPTY_CONTACT },
+    eap: { ...EMPTY_CONTACT },
+    hotline: { ...EMPTY_CONTACT },
+    human_resources: { ...EMPTY_CONTACT },
+    media_contact: { ...EMPTY_CONTACT },
+    receptionist: { ...EMPTY_CONTACT },
+    security: { ...EMPTY_CONTACT },
+    travel_department: { ...EMPTY_CONTACT },
+  },
   certification: {
     certification_acknowledgment: false,
     submitted_at_iso: '',
@@ -237,6 +252,7 @@ export const STEPS = [
   { id: 12, title: 'Core Operating Facts' },
   { id: 13, title: 'PTO + Holidays' },
   { id: 14, title: 'Special Modules' },
-  { id: 15, title: 'Uploads + Certification' },
-  { id: 16, title: 'Review & Submit' }
+  { id: 15, title: 'Contact Directory' },
+  { id: 16, title: 'Uploads + Certification' },
+  { id: 17, title: 'Review & Submit' }
 ];
