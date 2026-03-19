@@ -127,7 +127,7 @@ const App: React.FC = () => {
     reader.onload = (ev) => {
       try {
         const parsed = JSON.parse(ev.target?.result as string);
-        setFormData(parsed);
+        setFormData(mergeWithDefaults(INITIAL_DATA, parsed));
         setCurrentStepId(1);
         setErrors({});
         localStorage.setItem('handbook_intake_draft', JSON.stringify(parsed));

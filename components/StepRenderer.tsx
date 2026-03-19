@@ -521,7 +521,9 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
         </div>
       );
 
-    case 15: // Contact Directory
+    case 15: { // Contact Directory
+      const cd = data.contact_directory ?? {};
+      const e = (key: string) => (cd as any)[key] ?? { name: '', title: '', email: '', phone: '' };
       return (
         <div className="space-y-10">
           <div className="bg-indigo-50 p-4 rounded-lg text-sm text-indigo-800 italic">
@@ -531,114 +533,115 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
           <section>
             <SubHeader>CEO / President / Owner</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.ceo_president_owner.name} onChange={(v) => onChange('contact_directory.ceo_president_owner.name', v)} />
-              <Input label="Title" value={data.contact_directory.ceo_president_owner.title} onChange={(v) => onChange('contact_directory.ceo_president_owner.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.ceo_president_owner.email} onChange={(v) => onChange('contact_directory.ceo_president_owner.email', v)} />
-              <Input label="Phone" value={data.contact_directory.ceo_president_owner.phone} onChange={(v) => onChange('contact_directory.ceo_president_owner.phone', v)} />
+              <Input label="Name" value={e('ceo_president_owner').name} onChange={(v) => onChange('contact_directory.ceo_president_owner.name', v)} />
+              <Input label="Title" value={e('ceo_president_owner').title} onChange={(v) => onChange('contact_directory.ceo_president_owner.title', v)} />
+              <Input label="Email" type="email" value={e('ceo_president_owner').email} onChange={(v) => onChange('contact_directory.ceo_president_owner.email', v)} />
+              <Input label="Phone" value={e('ceo_president_owner').phone} onChange={(v) => onChange('contact_directory.ceo_president_owner.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>General Counsel / Legal</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.general_counsel.name} onChange={(v) => onChange('contact_directory.general_counsel.name', v)} />
-              <Input label="Title" value={data.contact_directory.general_counsel.title} onChange={(v) => onChange('contact_directory.general_counsel.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.general_counsel.email} onChange={(v) => onChange('contact_directory.general_counsel.email', v)} />
-              <Input label="Phone" value={data.contact_directory.general_counsel.phone} onChange={(v) => onChange('contact_directory.general_counsel.phone', v)} />
+              <Input label="Name" value={e('general_counsel').name} onChange={(v) => onChange('contact_directory.general_counsel.name', v)} />
+              <Input label="Title" value={e('general_counsel').title} onChange={(v) => onChange('contact_directory.general_counsel.title', v)} />
+              <Input label="Email" type="email" value={e('general_counsel').email} onChange={(v) => onChange('contact_directory.general_counsel.email', v)} />
+              <Input label="Phone" value={e('general_counsel').phone} onChange={(v) => onChange('contact_directory.general_counsel.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Accounting Department</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.accounting_department.name} onChange={(v) => onChange('contact_directory.accounting_department.name', v)} />
-              <Input label="Title" value={data.contact_directory.accounting_department.title} onChange={(v) => onChange('contact_directory.accounting_department.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.accounting_department.email} onChange={(v) => onChange('contact_directory.accounting_department.email', v)} />
-              <Input label="Phone" value={data.contact_directory.accounting_department.phone} onChange={(v) => onChange('contact_directory.accounting_department.phone', v)} />
+              <Input label="Name" value={e('accounting_department').name} onChange={(v) => onChange('contact_directory.accounting_department.name', v)} />
+              <Input label="Title" value={e('accounting_department').title} onChange={(v) => onChange('contact_directory.accounting_department.title', v)} />
+              <Input label="Email" type="email" value={e('accounting_department').email} onChange={(v) => onChange('contact_directory.accounting_department.email', v)} />
+              <Input label="Phone" value={e('accounting_department').phone} onChange={(v) => onChange('contact_directory.accounting_department.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Benefits Representative</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.benefits_representative.name} onChange={(v) => onChange('contact_directory.benefits_representative.name', v)} />
-              <Input label="Title" value={data.contact_directory.benefits_representative.title} onChange={(v) => onChange('contact_directory.benefits_representative.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.benefits_representative.email} onChange={(v) => onChange('contact_directory.benefits_representative.email', v)} />
-              <Input label="Phone" value={data.contact_directory.benefits_representative.phone} onChange={(v) => onChange('contact_directory.benefits_representative.phone', v)} />
+              <Input label="Name" value={e('benefits_representative').name} onChange={(v) => onChange('contact_directory.benefits_representative.name', v)} />
+              <Input label="Title" value={e('benefits_representative').title} onChange={(v) => onChange('contact_directory.benefits_representative.title', v)} />
+              <Input label="Email" type="email" value={e('benefits_representative').email} onChange={(v) => onChange('contact_directory.benefits_representative.email', v)} />
+              <Input label="Phone" value={e('benefits_representative').phone} onChange={(v) => onChange('contact_directory.benefits_representative.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Employee Assistance Program (EAP)</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name / Organization" value={data.contact_directory.eap.name} onChange={(v) => onChange('contact_directory.eap.name', v)} />
-              <Input label="Title" value={data.contact_directory.eap.title} onChange={(v) => onChange('contact_directory.eap.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.eap.email} onChange={(v) => onChange('contact_directory.eap.email', v)} />
-              <Input label="Phone" value={data.contact_directory.eap.phone} onChange={(v) => onChange('contact_directory.eap.phone', v)} />
+              <Input label="Name / Organization" value={e('eap').name} onChange={(v) => onChange('contact_directory.eap.name', v)} />
+              <Input label="Title" value={e('eap').title} onChange={(v) => onChange('contact_directory.eap.title', v)} />
+              <Input label="Email" type="email" value={e('eap').email} onChange={(v) => onChange('contact_directory.eap.email', v)} />
+              <Input label="Phone" value={e('eap').phone} onChange={(v) => onChange('contact_directory.eap.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Hotline</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name / Service" value={data.contact_directory.hotline.name} onChange={(v) => onChange('contact_directory.hotline.name', v)} />
-              <Input label="Title" value={data.contact_directory.hotline.title} onChange={(v) => onChange('contact_directory.hotline.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.hotline.email} onChange={(v) => onChange('contact_directory.hotline.email', v)} />
-              <Input label="Phone" value={data.contact_directory.hotline.phone} onChange={(v) => onChange('contact_directory.hotline.phone', v)} />
+              <Input label="Name / Service" value={e('hotline').name} onChange={(v) => onChange('contact_directory.hotline.name', v)} />
+              <Input label="Title" value={e('hotline').title} onChange={(v) => onChange('contact_directory.hotline.title', v)} />
+              <Input label="Email" type="email" value={e('hotline').email} onChange={(v) => onChange('contact_directory.hotline.email', v)} />
+              <Input label="Phone" value={e('hotline').phone} onChange={(v) => onChange('contact_directory.hotline.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Human Resources Department</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.human_resources.name} onChange={(v) => onChange('contact_directory.human_resources.name', v)} />
-              <Input label="Title" value={data.contact_directory.human_resources.title} onChange={(v) => onChange('contact_directory.human_resources.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.human_resources.email} onChange={(v) => onChange('contact_directory.human_resources.email', v)} />
-              <Input label="Phone" value={data.contact_directory.human_resources.phone} onChange={(v) => onChange('contact_directory.human_resources.phone', v)} />
+              <Input label="Name" value={e('human_resources').name} onChange={(v) => onChange('contact_directory.human_resources.name', v)} />
+              <Input label="Title" value={e('human_resources').title} onChange={(v) => onChange('contact_directory.human_resources.title', v)} />
+              <Input label="Email" type="email" value={e('human_resources').email} onChange={(v) => onChange('contact_directory.human_resources.email', v)} />
+              <Input label="Phone" value={e('human_resources').phone} onChange={(v) => onChange('contact_directory.human_resources.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Media Contact</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.media_contact.name} onChange={(v) => onChange('contact_directory.media_contact.name', v)} />
-              <Input label="Title" value={data.contact_directory.media_contact.title} onChange={(v) => onChange('contact_directory.media_contact.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.media_contact.email} onChange={(v) => onChange('contact_directory.media_contact.email', v)} />
-              <Input label="Phone" value={data.contact_directory.media_contact.phone} onChange={(v) => onChange('contact_directory.media_contact.phone', v)} />
+              <Input label="Name" value={e('media_contact').name} onChange={(v) => onChange('contact_directory.media_contact.name', v)} />
+              <Input label="Title" value={e('media_contact').title} onChange={(v) => onChange('contact_directory.media_contact.title', v)} />
+              <Input label="Email" type="email" value={e('media_contact').email} onChange={(v) => onChange('contact_directory.media_contact.email', v)} />
+              <Input label="Phone" value={e('media_contact').phone} onChange={(v) => onChange('contact_directory.media_contact.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Receptionist</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name" value={data.contact_directory.receptionist.name} onChange={(v) => onChange('contact_directory.receptionist.name', v)} />
-              <Input label="Title" value={data.contact_directory.receptionist.title} onChange={(v) => onChange('contact_directory.receptionist.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.receptionist.email} onChange={(v) => onChange('contact_directory.receptionist.email', v)} />
-              <Input label="Phone" value={data.contact_directory.receptionist.phone} onChange={(v) => onChange('contact_directory.receptionist.phone', v)} />
+              <Input label="Name" value={e('receptionist').name} onChange={(v) => onChange('contact_directory.receptionist.name', v)} />
+              <Input label="Title" value={e('receptionist').title} onChange={(v) => onChange('contact_directory.receptionist.title', v)} />
+              <Input label="Email" type="email" value={e('receptionist').email} onChange={(v) => onChange('contact_directory.receptionist.email', v)} />
+              <Input label="Phone" value={e('receptionist').phone} onChange={(v) => onChange('contact_directory.receptionist.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Security</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name / Department" value={data.contact_directory.security.name} onChange={(v) => onChange('contact_directory.security.name', v)} />
-              <Input label="Title" value={data.contact_directory.security.title} onChange={(v) => onChange('contact_directory.security.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.security.email} onChange={(v) => onChange('contact_directory.security.email', v)} />
-              <Input label="Phone" value={data.contact_directory.security.phone} onChange={(v) => onChange('contact_directory.security.phone', v)} />
+              <Input label="Name / Department" value={e('security').name} onChange={(v) => onChange('contact_directory.security.name', v)} />
+              <Input label="Title" value={e('security').title} onChange={(v) => onChange('contact_directory.security.title', v)} />
+              <Input label="Email" type="email" value={e('security').email} onChange={(v) => onChange('contact_directory.security.email', v)} />
+              <Input label="Phone" value={e('security').phone} onChange={(v) => onChange('contact_directory.security.phone', v)} />
             </div>
           </section>
 
           <section>
             <SubHeader>Travel Department</SubHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Name / Agency" value={data.contact_directory.travel_department.name} onChange={(v) => onChange('contact_directory.travel_department.name', v)} />
-              <Input label="Title" value={data.contact_directory.travel_department.title} onChange={(v) => onChange('contact_directory.travel_department.title', v)} />
-              <Input label="Email" type="email" value={data.contact_directory.travel_department.email} onChange={(v) => onChange('contact_directory.travel_department.email', v)} />
-              <Input label="Phone" value={data.contact_directory.travel_department.phone} onChange={(v) => onChange('contact_directory.travel_department.phone', v)} />
+              <Input label="Name / Agency" value={e('travel_department').name} onChange={(v) => onChange('contact_directory.travel_department.name', v)} />
+              <Input label="Title" value={e('travel_department').title} onChange={(v) => onChange('contact_directory.travel_department.title', v)} />
+              <Input label="Email" type="email" value={e('travel_department').email} onChange={(v) => onChange('contact_directory.travel_department.email', v)} />
+              <Input label="Phone" value={e('travel_department').phone} onChange={(v) => onChange('contact_directory.travel_department.phone', v)} />
             </div>
           </section>
         </div>
       );
+    }
 
     case 16: // Cert
       return (
