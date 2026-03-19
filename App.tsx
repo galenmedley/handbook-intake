@@ -5,6 +5,21 @@ import StepRenderer from './components/StepRenderer';
 import Sidebar from './components/Sidebar';
 import { Save, Trash2, ChevronLeft, ChevronRight, CheckCircle, Download, FileText, Loader, Upload, FolderOpen } from 'lucide-react';
 
+/** Recursively fill missing keys in `saved` using defaults from `initial`. */
+function mergeWithDefaults<T>(initial: T, saved: Partial<T>): T {
+  if (typeof initial !== 'object' || initial === null || Array.isArray(initial)) {
+    return (saved !== undefined ? saved : initial) as T;
+  }
+  const result = { ...initial } as Record<string, unknown>;
+  for (const key of Object.keys(initial as object)) {
+    const savedVal = (saved as Record<string, unknown>)?.[key];
+    if (savedVal !== undefined) {
+      result[key] = mergeWithDefaults((initial as Record<string, unknown>)[key], savedVal as never);
+    }
+  }
+  return result as T;
+}
+
 const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL as string;
 const MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL as string;
 
@@ -70,7 +85,17 @@ const App: React.FC = () => {
 
   const restoreDraft = () => {
     const saved = localStorage.getItem('handbook_intake_draft');
-    if (saved) setFormData(JSON.parse(saved));
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Deep-merge saved draft over INITIAL_DATA so any new fields
+        // added to the schema are populated with their defaults.
+        const merged = mergeWithDefaults(INITIAL_DATA, parsed);
+        setFormData(merged);
+      } catch {
+        setFormData(INITIAL_DATA);
+      }
+    }
     setShowRestorePrompt(false);
   };
 
