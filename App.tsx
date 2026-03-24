@@ -459,7 +459,7 @@ const App: React.FC = () => {
               <h1 className="text-2xl font-bold text-slate-900">Personalization Questions</h1>
               <p className="text-slate-600 mt-2 text-sm">
                 The following information could not be filled automatically. All questions are <strong>optional</strong> —
-                any you skip will be highlighted yellow in the handbook for attorney review.
+                any you skip will remain highlighted yellow in the draft and can be filled in manually before distribution.
               </p>
             </div>
             <div className="p-6 md:p-8 space-y-6">
@@ -475,7 +475,7 @@ const App: React.FC = () => {
                     <textarea
                       className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
                       rows={2}
-                      placeholder="Leave blank to keep placeholder highlighted for attorney review..."
+                      placeholder="Leave blank to keep highlighted yellow — fill in manually before distribution..."
                       value={answers[q.placeholder] ?? ''}
                       onChange={e => setAnswers(prev => ({ ...prev, [q.placeholder]: e.target.value }))}
                     />
@@ -550,11 +550,15 @@ const App: React.FC = () => {
               <strong>Review Copy</strong> includes colored highlights:
               <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium" style={{background:'#ADD8E6'}}>light blue</span> = auto-filled from your intake,
               <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium" style={{background:'#90EE90'}}>light green</span> = AI-written content,
-              <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-200">yellow</span> = needs attorney input.
+              <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-200">yellow</span> = information not yet provided — complete these fields before distributing.
               <br /><br />
-              <strong>Clean Copy</strong> has all highlights removed and is ready for employee distribution after attorney review.
-              <br /><br />
-              This handbook should be reviewed by an attorney licensed in each jurisdiction covered before distribution.
+              <strong>Clean Copy</strong> has all highlights removed and is formatted for distribution once all fields are complete.
+            </p>
+          </div>
+
+          <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-left mb-6">
+            <p className="text-xs text-rose-800 leading-relaxed">
+              <strong>Important:</strong> This document is a draft generated from your intake data and is not legal advice. It should be reviewed by a licensed attorney in each applicable jurisdiction before being distributed to employees.
             </p>
           </div>
 
