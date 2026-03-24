@@ -211,6 +211,9 @@ export interface IntakeData {
     leave_and_conduct: {
       consecutive_absence_days: number;
     };
+    meal_break_practices: {
+      meal_waiver_form_name: string;
+    };
     smoking_vaping: {
       smoking_vaping_policy: 'CompletelySmokeFreeIncludingVaping' | 'DesignatedOutdoorAreasOnly' | 'OffsiteOnly' | 'Other';
       smoking_vaping_policy_other_text: string;
@@ -273,6 +276,11 @@ export interface IntakeData {
     expense_policy_exists_flag: boolean;
     ethics_hotline_flag: boolean;
     ethics_hotline_details: string;
+    pt_excluded_insurance_benefits: string;
+    pt_excluded_other_benefits: string;
+    fsa_max_medical_amount: string;
+    employee_referral_bonus_timing: string;
+    dual_use_supported_devices: string;
   };
   uploads: {
     cba_upload: FileMetadata | null;

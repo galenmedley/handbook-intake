@@ -59,10 +59,19 @@ const App: React.FC = () => {
     }
   }, [formData, phase]);
 
-  // Poll session status while waiting
+  // Poll session status while waiting (timeout after 10 minutes)
   useEffect(() => {
     if (phase !== 'waiting' || !sessionId) return;
+    let pollCount = 0;
+    const MAX_POLLS = 120; // 10 minutes at 5s intervals
     const interval = setInterval(async () => {
+      pollCount++;
+      if (pollCount > MAX_POLLS) {
+        clearInterval(interval);
+        setSubmitError('Handbook generation timed out. Please try submitting again or contact support.');
+        setPhase('form');
+        return;
+      }
       try {
         const r = await fetch(`${MICROSERVICE_URL}/session/${sessionId}`);
         const data = await r.json();

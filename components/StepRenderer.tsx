@@ -421,6 +421,13 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
               <Input label="Consecutive Unexcused Absences Constituting a Violation (days)" type="number" placeholder="e.g., 3" value={data.other_template_inputs.leave_and_conduct.consecutive_absence_days} onChange={(v) => onChange('other_template_inputs.leave_and_conduct.consecutive_absence_days', parseInt(v)||0)} />
             </div>
           </section>
+
+          <section>
+            <SubHeader>K) Meal Break Practices</SubHeader>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input label="Meal Period Waiver Form Name (if applicable)" placeholder="e.g., Meal Period Waiver Agreement" value={data.other_template_inputs.meal_break_practices.meal_waiver_form_name} onChange={(v) => onChange('other_template_inputs.meal_break_practices.meal_waiver_form_name', v)} />
+            </div>
+          </section>
         </div>
       );
 
@@ -539,6 +546,21 @@ const StepRenderer: React.FC<StepRendererProps> = ({ stepId, data, onChange, err
                 <TextArea label="Ethics Hotline Details" value={data.special_modules.ethics_hotline_details} onChange={(v) => onChange('special_modules.ethics_hotline_details', v)} required error={errors.eth_details} />
               </div>
             )}
+          </section>
+
+          <section>
+            <SubHeader>Employee Benefits Details</SubHeader>
+            <div className="space-y-4">
+              <Input label="Insurance Benefits Part-Time Employees Are NOT Eligible For" placeholder="e.g., life insurance, long-term disability (LTD) and accidental death & dismemberment (AD&D) insurance" value={data.special_modules.pt_excluded_insurance_benefits} onChange={(v) => onChange('special_modules.pt_excluded_insurance_benefits', v)} />
+              <Input label="Other Benefits Part-Time Employees Are NOT Eligible For" placeholder="e.g., holiday pay" value={data.special_modules.pt_excluded_other_benefits} onChange={(v) => onChange('special_modules.pt_excluded_other_benefits', v)} />
+              <Input label="FSA Maximum Medical Reimbursement Amount" placeholder="e.g., $2,750" value={data.special_modules.fsa_max_medical_amount} onChange={(v) => onChange('special_modules.fsa_max_medical_amount', v)} />
+              <Input label="Employee Referral Bonus Timing Period" placeholder="e.g., new employee's first year of employment" value={data.special_modules.employee_referral_bonus_timing} onChange={(v) => onChange('special_modules.employee_referral_bonus_timing', v)} />
+            </div>
+          </section>
+
+          <section>
+            <SubHeader>Dual-Use Device Support</SubHeader>
+            <TextArea label="Supported Devices and Operating Systems (for Dual-Use Device Users policy)" placeholder="e.g., iPhone/iOS, Android, Windows laptops" value={data.special_modules.dual_use_supported_devices} onChange={(v) => onChange('special_modules.dual_use_supported_devices', v)} />
           </section>
         </div>
       );

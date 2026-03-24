@@ -157,6 +157,9 @@ export const INITIAL_DATA: IntakeData = {
     leave_and_conduct: {
       consecutive_absence_days: 0
     },
+    meal_break_practices: {
+      meal_waiver_form_name: ''
+    },
     smoking_vaping: {
       smoking_vaping_policy: 'CompletelySmokeFreeIncludingVaping',
       smoking_vaping_policy_other_text: '',
@@ -218,7 +221,12 @@ export const INITIAL_DATA: IntakeData = {
     expense_reimbursement_process: '',
     expense_policy_exists_flag: false,
     ethics_hotline_flag: false,
-    ethics_hotline_details: ''
+    ethics_hotline_details: '',
+    pt_excluded_insurance_benefits: '',
+    pt_excluded_other_benefits: '',
+    fsa_max_medical_amount: '',
+    employee_referral_bonus_timing: '',
+    dual_use_supported_devices: ''
   },
   uploads: {
     cba_upload: null,
