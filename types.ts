@@ -5,6 +5,19 @@ export interface FileMetadata {
   file_size: number;
 }
 
+// Returned by the n8n webhook after policy filtering. Used by the
+// PolicySelectionScreen to render the checklist. `required_policy=true`
+// means the row's checkbox is locked-on (per Column H of the policy index).
+export interface Policy {
+  policy_id: string;
+  file_path: string;
+  topic: string;
+  jurisdiction: string;
+  locality: string;
+  sort_key: number;
+  required_policy: boolean;
+}
+
 export interface Address {
   street: string;
   city: string;

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { IntakeData } from './types';
+import { IntakeData, Policy } from './types';
 import { INITIAL_DATA, STEPS } from './constants';
 import StepRenderer from './components/StepRenderer';
 import Sidebar from './components/Sidebar';
+import PolicySelectionScreen from './components/PolicySelectionScreen';
 import { Save, Trash2, ChevronLeft, ChevronRight, CheckCircle, Download, FileText, Loader, Upload, FolderOpen } from 'lucide-react';
 
 /** Recursively fill missing keys in `saved` using defaults from `initial`. */
@@ -23,7 +24,15 @@ function mergeWithDefaults<T>(initial: T, saved: Partial<T>): T {
 const WEBHOOK_URL = import.meta.env.VITE_WEBHOOK_URL as string;
 const MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL as string;
 
-type Phase = 'form' | 'submitting' | 'waiting' | 'questions' | 'applying' | 'done';
+type Phase =
+  | 'form'
+  | 'submitting'
+  | 'waiting'
+  | 'selecting_policies'  // NEW: user picks which auto-filtered policies to keep
+  | 'generating'          // NEW: post-selection generation in progress; polling
+  | 'questions'
+  | 'applying'
+  | 'done';
 
 interface Question {
   id: string;
@@ -47,6 +56,10 @@ const App: React.FC = () => {
   const [cleanDocxBase64, setCleanDocxBase64] = useState('');
   const [docxFilename, setDocxFilename] = useState('');
   const [submitError, setSubmitError] = useState('');
+  // Policy selection state — populated from Phase-1 webhook response,
+  // user toggles checkboxes, then submits to /session/{id}/generate.
+  const [policies, setPolicies] = useState<Policy[]>([]);
+  const [selectedPolicyIds, setSelectedPolicyIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const saved = localStorage.getItem('handbook_intake_draft');
@@ -59,9 +72,11 @@ const App: React.FC = () => {
     }
   }, [formData, phase]);
 
-  // Poll session status while waiting (timeout after 10 minutes)
+  // Poll session status while waiting OR generating (timeout after 10 minutes).
+  // 'generating' is the post-policy-selection phase; the server runs the
+  // handbook build as a BackgroundTask and updates session.status when done.
   useEffect(() => {
-    if (phase !== 'waiting' || !sessionId) return;
+    if ((phase !== 'waiting' && phase !== 'generating') || !sessionId) return;
     let pollCount = 0;
     const MAX_POLLS = 120; // 10 minutes at 5s intervals
     const interval = setInterval(async () => {
@@ -69,7 +84,9 @@ const App: React.FC = () => {
       if (pollCount > MAX_POLLS) {
         clearInterval(interval);
         setSubmitError('Handbook generation timed out. Please try submitting again or contact support.');
-        setPhase('form');
+        // If we timed out during policy selection's post-submit, return to selection
+        // so the user doesn't lose their choices; otherwise back to form.
+        setPhase(phase === 'generating' ? 'selecting_policies' : 'form');
         return;
       }
       try {
@@ -373,11 +390,62 @@ const App: React.FC = () => {
       if (!res.ok) throw new Error(`Webhook error: ${res.status}`);
       const data = await res.json();
       setSessionId(data.session_id);
-      setPhase('waiting');
+      // New flow: webhook returns the auto-filtered policy list and we ask
+      // the user to confirm before generation. Default-check every policy.
+      // Backward compat: if status isn't 'needs_selection', fall back to
+      // legacy waiting/poll behavior.
+      if (data.status === 'needs_selection' && Array.isArray(data.policies)) {
+        const list: Policy[] = data.policies;
+        setPolicies(list);
+        setSelectedPolicyIds(new Set(list.map((p) => p.policy_id)));
+        setPhase('selecting_policies');
+      } else {
+        setPhase('waiting');
+      }
     } catch (err: any) {
       setSubmitError(err.message || 'Submission failed. Please try again.');
       setPhase('form');
     }
+  };
+
+  /** POST chosen policy IDs to the microservice; transitions to 'generating'. */
+  const submitSelection = async () => {
+    setSubmitError('');
+    setPhase('generating');
+    try {
+      const res = await fetch(`${MICROSERVICE_URL}/session/${sessionId}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selected_policy_ids: [...selectedPolicyIds] }),
+      });
+      if (!res.ok) throw new Error(`Generation request failed: ${res.status}`);
+      // Server runs generation as a background task; the polling effect
+      // (triggered by phase === 'generating') will pick up status changes.
+    } catch (err: any) {
+      setSubmitError(err.message || 'Failed to start generation. Please try again.');
+      setPhase('selecting_policies');
+    }
+  };
+
+  const togglePolicy = (policyId: string) => {
+    setSelectedPolicyIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(policyId)) next.delete(policyId);
+      else next.add(policyId);
+      return next;
+    });
+  };
+
+  const bulkSetPolicies = (policyIds: string[], selected: boolean) => {
+    setSelectedPolicyIds((prev) => {
+      const next = new Set(prev);
+      if (selected) {
+        for (const id of policyIds) next.add(id);
+      } else {
+        for (const id of policyIds) next.delete(id);
+      }
+      return next;
+    });
   };
 
   const submitAnswers = async () => {
@@ -427,15 +495,20 @@ const App: React.FC = () => {
     );
   }
 
-  if (phase === 'waiting') {
+  if (phase === 'waiting' || phase === 'generating') {
+    const heading =
+      phase === 'generating' ? 'Generating Your Handbook' : 'Processing Your Submission';
+    const subhead =
+      phase === 'generating'
+        ? "We're assembling the policies you selected. This typically takes about 2 minutes."
+        : "We're matching your intake to applicable policies. This usually takes a few seconds.";
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
         <div className="max-w-lg w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <Loader className="w-12 h-12 text-indigo-500 mx-auto mb-6 animate-spin" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-3">Generating Your Handbook</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-3">{heading}</h2>
           <p className="text-slate-600 mb-6">
-            We're selecting and assembling your policies. This typically takes about 2 minutes.
-            Follow-up questions will appear here shortly.
+            {subhead} Follow-up questions will appear here shortly.
           </p>
           <div className="flex justify-center gap-1">
             {[0, 1, 2].map(i => (
@@ -444,6 +517,18 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+    );
+  }
+
+  if (phase === 'selecting_policies') {
+    return (
+      <PolicySelectionScreen
+        policies={policies}
+        selected={selectedPolicyIds}
+        onToggle={togglePolicy}
+        onBulkSet={bulkSetPolicies}
+        onSubmit={submitSelection}
+      />
     );
   }
 
