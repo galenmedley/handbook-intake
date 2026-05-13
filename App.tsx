@@ -166,6 +166,67 @@ const App: React.FC = () => {
     e.target.value = '';
   };
 
+  /** Step 2 export: save the questions + current answers to a JSON file for replay testing. */
+  const exportAnswersAsJson = () => {
+    const payload = {
+      company: formData.company_identity?.company_legal_name || '',
+      session_id: sessionId,
+      exported_at: new Date().toISOString(),
+      questions,
+      answers,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const company = formData.company_identity?.company_legal_name?.replace(/\s+/g, '_') || 'handbook';
+    a.href = url;
+    a.download = `${company}_step2_answers.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  /** Step 2 import: load a saved answers JSON and pre-fill the form. Match by placeholder text,
+   *  not question id (id is Claude-generated and not stable across runs). Imported answers for
+   *  placeholders not in the current question set are silently ignored. */
+  const loadAnswersFromJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target?.result as string);
+        const importedAnswers: Record<string, string> = parsed.answers || {};
+        // Only keep imported answers that match a placeholder currently on screen
+        const currentPlaceholders = new Set(questions.map((q) => q.placeholder));
+        const filtered: Record<string, string> = {};
+        let matched = 0;
+        let skipped = 0;
+        for (const [ph, ans] of Object.entries(importedAnswers)) {
+          if (currentPlaceholders.has(ph)) {
+            filtered[ph] = String(ans);
+            matched++;
+          } else {
+            skipped++;
+          }
+        }
+        setAnswers((prev) => ({ ...prev, ...filtered }));
+        alert(
+          `Loaded ${matched} answer${matched === 1 ? '' : 's'}.` +
+            (skipped > 0
+              ? `\n${skipped} answer${skipped === 1 ? '' : 's'} skipped (no matching placeholder in current questions).`
+              : '')
+        );
+      } catch {
+        alert('Invalid JSON file — could not load.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  // File input ref for Step 2 import (separate from Step 1 fileInputRef)
+  const answersInputRef = useRef<HTMLInputElement>(null);
+
   const handleFieldChange = useCallback((path: string, value: any) => {
     setFormData(prev => {
       const keys = path.split('.');
@@ -538,8 +599,33 @@ const App: React.FC = () => {
         <div className="max-w-2xl w-full">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="p-6 md:p-8 bg-indigo-50 border-b border-indigo-100">
-              <div className="flex items-center gap-3 mb-1">
+              <div className="flex items-center justify-between gap-3 mb-1">
                 <span className="text-xs font-bold text-indigo-600 uppercase tracking-widest">Step 2 of 2</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={exportAnswersAsJson}
+                    title="Download current questions + answers as JSON (for testing / re-import)"
+                    className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition"
+                  >
+                    <Download className="w-3.5 h-3.5 mr-1" /> Export Q&amp;A
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => answersInputRef.current?.click()}
+                    title="Upload a previously-saved answers JSON to pre-fill these fields"
+                    className="inline-flex items-center px-2.5 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition"
+                  >
+                    <Upload className="w-3.5 h-3.5 mr-1" /> Load Q&amp;A
+                  </button>
+                  <input
+                    ref={answersInputRef}
+                    type="file"
+                    accept="application/json,.json"
+                    className="hidden"
+                    onChange={loadAnswersFromJson}
+                  />
+                </div>
               </div>
               <h1 className="text-2xl font-bold text-slate-900">Personalization Questions</h1>
               <p className="text-slate-600 mt-2 text-sm">
