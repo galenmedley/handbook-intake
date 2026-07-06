@@ -44,6 +44,9 @@ const App: React.FC = () => {
   const [currentStepId, setCurrentStepId] = useState(1);
   const [formData, setFormData] = useState<IntakeData>(INITIAL_DATA);
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
+  // Guards the auto-save effect: false until the restore prompt is resolved,
+  // so the initial empty formData never clobbers a saved draft on mount.
+  const [hydrated, setHydrated] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,14 +66,18 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const saved = localStorage.getItem('handbook_intake_draft');
-    if (saved) setShowRestorePrompt(true);
+    if (saved) {
+      setShowRestorePrompt(true);
+    } else {
+      setHydrated(true); // nothing to restore — safe to start saving
+    }
   }, []);
 
   useEffect(() => {
-    if (phase === 'form') {
+    if (hydrated && phase === 'form') {
       localStorage.setItem('handbook_intake_draft', JSON.stringify(formData));
     }
-  }, [formData, phase]);
+  }, [formData, phase, hydrated]);
 
   // Poll session status while waiting OR generating (timeout after 10 minutes).
   // 'generating' is the post-policy-selection phase; the server runs the
@@ -123,6 +130,7 @@ const App: React.FC = () => {
       }
     }
     setShowRestorePrompt(false);
+    setHydrated(true);
   };
 
   const clearDraft = () => {
@@ -310,9 +318,9 @@ const App: React.FC = () => {
         if (d.workforce_counts.temp_staff_flag && !d.workforce_counts.temp_staff_details) newErrors.temp = 'Details required';
         break;
       case 4:
-        if (d.work_locations.onsite_locations.length === 0 && !d.work_locations.remote_flag) {
-          newErrors.onsite_locs = 'Add at least one onsite location or enable Remote Employees.';
-        }
+        // No location-count gate here: the Remote Employees toggle lives on
+        // Step 5, so an all-remote company must be able to pass Step 4 with
+        // zero onsite locations. Step 5 validates the onsite/remote combination.
         break;
       case 5:
         const hasOnsite = d.work_locations.onsite_locations.length > 0;
@@ -589,6 +597,7 @@ const App: React.FC = () => {
         onToggle={togglePolicy}
         onBulkSet={bulkSetPolicies}
         onSubmit={submitSelection}
+        error={submitError}
       />
     );
   }
@@ -755,7 +764,7 @@ const App: React.FC = () => {
             <p className="text-slate-600 mb-6">Continue your existing progress or start over.</p>
             <div className="flex gap-3">
               <button onClick={restoreDraft} className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition">Restore</button>
-              <button onClick={() => { setShowRestorePrompt(false); localStorage.removeItem('handbook_intake_draft'); }} className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">Start Fresh</button>
+              <button onClick={() => { setShowRestorePrompt(false); localStorage.removeItem('handbook_intake_draft'); setHydrated(true); }} className="flex-1 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg font-medium transition">Start Fresh</button>
             </div>
           </div>
         </div>

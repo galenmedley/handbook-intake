@@ -8,6 +8,7 @@ interface Props {
   onToggle: (policyId: string) => void;
   onBulkSet: (policyIds: string[], selected: boolean) => void;
   onSubmit: () => void;
+  error?: string;
 }
 
 /**
@@ -110,6 +111,7 @@ const PolicySelectionScreen: React.FC<Props> = ({
   onToggle,
   onBulkSet,
   onSubmit,
+  error,
 }) => {
   const groups = useMemo(() => groupPolicies(policies), [policies]);
 
@@ -251,6 +253,11 @@ const PolicySelectionScreen: React.FC<Props> = ({
       </div>
 
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg py-4 px-4 z-10">
+        {error && (
+          <div className="max-w-3xl mx-auto mb-3 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+            {error}
+          </div>
+        )}
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
           <span className="text-sm text-slate-600">
             <strong className="text-slate-900">{totalSelected}</strong> of {policies.length} policies selected
