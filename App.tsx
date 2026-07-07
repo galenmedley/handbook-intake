@@ -34,11 +34,30 @@ type Phase =
   | 'applying'
   | 'done';
 
+interface QuestionOption {
+  label: string;
+  keep: number; // index into choice_placeholders to KEEP; -1 = omit all
+}
+
 interface Question {
   id: string;
   placeholder: string;
   question: string;
+  // Typed-question fields (older sessions may lack these; absent type = free text)
+  type?: 'choice' | 'value' | 'text';
+  choice_placeholders?: string[];
+  options?: QuestionOption[];
+  format_hint?: string;
+  min?: number;
+  max?: number;
+  policy?: string;
 }
+
+// Sentinel answer values for choice questions — the microservice keeps the
+// chosen option's template text verbatim and deletes the others. Must match
+// KEEP_OPTION / DELETE_OPTION in docx_processor.py.
+const KEEP_OPTION = '__KEEP_OPTION__';
+const DELETE_OPTION = '__DELETE_OPTION__';
 
 const App: React.FC = () => {
   const [currentStepId, setCurrentStepId] = useState(1);
@@ -517,13 +536,71 @@ const App: React.FC = () => {
     });
   };
 
-  const submitAnswers = async () => {
+  // ── Typed-question helpers ─────────────────────────────────────────
+  const [answerErrors, setAnswerErrors] = useState<Record<string, string>>({});
+
+  /** Record a choice selection: chosen option's placeholder KEEPs, siblings DELETE. */
+  const selectChoice = (q: Question, keepIdx: number) => {
+    setAnswers(prev => {
+      const next = { ...prev };
+      (q.choice_placeholders ?? []).forEach((ph, i) => {
+        next[ph] = i === keepIdx ? KEEP_OPTION : DELETE_OPTION;
+      });
+      return next;
+    });
+  };
+
+  /** Which option is selected for a choice question? null = unanswered, -1 = omit-all. */
+  const choiceSelectedIndex = (q: Question): number | null => {
+    const phs = q.choice_placeholders ?? [];
+    if (!phs.length || phs.some(ph => !answers[ph])) return null;
+    return phs.findIndex(ph => answers[ph] === KEEP_OPTION);
+  };
+
+  /** Clear a choice selection so the question returns to attorney review. */
+  const clearChoice = (q: Question) => {
+    setAnswers(prev => {
+      const next = { ...prev };
+      (q.choice_placeholders ?? []).forEach(ph => delete next[ph]);
+      return next;
+    });
+  };
+
+  /** Validate constrained-value answers (min/max from the placeholder's legal limits). */
+  const validateAnswers = (): boolean => {
+    const errs: Record<string, string> = {};
+    for (const q of questions) {
+      if (q.type !== 'value') continue;
+      const v = (answers[q.placeholder] ?? '').trim();
+      if (!v) continue; // all questions are optional
+      if (q.min !== undefined || q.max !== undefined) {
+        const match = v.match(/-?\d+(\.\d+)?/);
+        const num = match ? parseFloat(match[0]) : NaN;
+        if (isNaN(num)) {
+          errs[q.id] = 'This answer must include a number.';
+        } else if (q.max !== undefined && num > q.max) {
+          errs[q.id] = `Must be ${q.max} or less (legal limit).`;
+        } else if (q.min !== undefined && num < q.min) {
+          errs[q.id] = `Must be ${q.min} or more.`;
+        }
+      }
+    }
+    setAnswerErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const submitAnswers = async (overrideAnswers?: Record<string, string>) => {
+    if (overrideAnswers === undefined && !validateAnswers()) {
+      setSubmitError('Please correct the highlighted answers before submitting.');
+      return;
+    }
+    setSubmitError('');
     setPhase('applying');
     try {
       const res = await fetch(`${MICROSERVICE_URL}/apply-answers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ session_id: sessionId, answers }),
+        body: JSON.stringify({ session_id: sessionId, answers: overrideAnswers ?? answers }),
       });
       if (!res.ok) throw new Error(`Error applying answers: ${res.status}`);
       const data = await res.json();
@@ -652,14 +729,90 @@ const App: React.FC = () => {
                       {q.question}
                       <span className="ml-2 text-xs text-slate-400 font-normal">(optional)</span>
                     </label>
-                    <textarea
-                      className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
-                      rows={2}
-                      placeholder="Leave blank to keep highlighted yellow — fill in manually before distribution..."
-                      value={answers[q.placeholder] ?? ''}
-                      onChange={e => setAnswers(prev => ({ ...prev, [q.placeholder]: e.target.value }))}
-                    />
-                    <p className="text-xs text-slate-400 mt-1 font-mono">{q.placeholder}</p>
+                    {q.policy && (
+                      <p className="text-xs text-indigo-500 font-medium mb-1.5">{q.policy}</p>
+                    )}
+
+                    {q.type === 'choice' && (q.options?.length ?? 0) > 0 ? (
+                      <div className="space-y-1.5">
+                        {q.options!.map((opt, oi) => {
+                          const sel = choiceSelectedIndex(q);
+                          const checked = sel !== null && sel === opt.keep;
+                          const fullText =
+                            opt.keep >= 0 ? q.choice_placeholders?.[opt.keep] : undefined;
+                          return (
+                            <label
+                              key={oi}
+                              className={`flex items-start gap-2.5 px-3 py-2 rounded-lg border cursor-pointer transition ${
+                                checked
+                                  ? 'border-indigo-400 bg-indigo-50'
+                                  : 'border-slate-200 hover:bg-slate-50'
+                              }`}
+                            >
+                              <input
+                                type="radio"
+                                name={q.id}
+                                className="mt-0.5"
+                                checked={checked}
+                                onChange={() => selectChoice(q, opt.keep)}
+                              />
+                              <span className="min-w-0">
+                                <span className="block text-sm text-slate-800">{opt.label}</span>
+                                {fullText && (
+                                  <span className="block text-xs text-slate-500 mt-0.5">
+                                    Handbook text: “{fullText.replace(/^\[|\]$/g, '').slice(0, 220)}
+                                    {fullText.length > 222 ? '…' : ''}”
+                                  </span>
+                                )}
+                              </span>
+                            </label>
+                          );
+                        })}
+                        {choiceSelectedIndex(q) !== null && (
+                          <button
+                            type="button"
+                            onClick={() => clearChoice(q)}
+                            className="text-xs text-slate-400 hover:text-slate-600 underline"
+                          >
+                            Clear selection (leave for attorney review)
+                          </button>
+                        )}
+                      </div>
+                    ) : q.type === 'value' ? (
+                      <>
+                        <input
+                          type="text"
+                          className={`w-full border rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 ${
+                            answerErrors[q.id] ? 'border-rose-400 bg-rose-50' : 'border-slate-200'
+                          }`}
+                          placeholder={q.format_hint || 'Leave blank to keep highlighted yellow...'}
+                          value={answers[q.placeholder] ?? ''}
+                          onChange={e => setAnswers(prev => ({ ...prev, [q.placeholder]: e.target.value }))}
+                        />
+                        {q.format_hint && (
+                          <p className="text-xs text-slate-500 mt-1">{q.format_hint}</p>
+                        )}
+                        {answerErrors[q.id] && (
+                          <p className="text-xs text-rose-600 mt-1 font-medium">{answerErrors[q.id]}</p>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <textarea
+                          className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-300 resize-none"
+                          rows={2}
+                          placeholder="Leave blank to keep highlighted yellow — fill in manually before distribution..."
+                          value={answers[q.placeholder] ?? ''}
+                          onChange={e => setAnswers(prev => ({ ...prev, [q.placeholder]: e.target.value }))}
+                        />
+                        {q.format_hint && (
+                          <p className="text-xs text-slate-500 mt-1">{q.format_hint}</p>
+                        )}
+                      </>
+                    )}
+                    {q.type !== 'choice' && (
+                      <p className="text-xs text-slate-400 mt-1 font-mono">{q.placeholder.slice(0, 120)}{q.placeholder.length > 120 ? '…' : ''}</p>
+                    )}
                   </div>
                 ))
               )}
@@ -667,7 +820,7 @@ const App: React.FC = () => {
             </div>
             <div className="p-6 md:px-8 py-5 bg-slate-50 border-t border-slate-100 flex flex-wrap gap-3 justify-between items-center">
               <button
-                onClick={() => submitAnswers()}
+                onClick={() => submitAnswers({})}
                 className="px-4 py-2.5 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition"
               >
                 Skip All &amp; Download Draft
