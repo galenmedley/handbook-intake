@@ -879,14 +879,37 @@ const App: React.FC = () => {
           </div>
 
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 text-left mb-6">
-            <p className="text-xs text-amber-800 leading-relaxed">
-              <strong>Review Copy</strong> includes colored highlights:
-              <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium" style={{background:'#ADD8E6'}}>light blue</span> = auto-filled from your intake,
-              <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium" style={{background:'#90EE90'}}>light green</span> = AI-written content,
-              <span className="inline-block mx-1 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-200">yellow</span> = information not yet provided — complete these fields before distributing.
-              <br /><br />
-              <strong>Clean Copy</strong> has all highlights removed and is formatted for distribution once all fields are complete.
-            </p>
+            <div className="text-xs text-amber-800 leading-relaxed">
+              <p className="mb-2"><strong>Review Copy</strong> — highlight legend:</p>
+              <ul className="space-y-1.5 mb-3">
+                <li>
+                  <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: '#ADD8E6' }}>light blue</span>
+                  Information you provided — intake data, your Step 2 answers, and policy options you selected.
+                </li>
+                <li>
+                  <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: '#D9B3FF' }}>lavender<sup className="font-bold">AI</sup></span>
+                  Values the AI derived from your intake or rephrased to fit the template (marked with a small
+                  superscript "AI"). Verify each one.
+                </li>
+                <li>
+                  <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: '#90EE90' }}>light green</span>
+                  AI-written narrative content (the "About Our Company" section).
+                </li>
+                <li>
+                  <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded text-xs font-medium bg-yellow-200">yellow</span>
+                  Blanks that still need an answer — complete these before distributing.
+                </li>
+                <li>
+                  <span className="inline-block mr-1.5 px-1.5 py-0.5 rounded text-xs font-medium" style={{ background: '#FFD966' }}>amber</span>
+                  Drafting notes and optional or multiple-choice provisions awaiting an attorney's decision.
+                </li>
+              </ul>
+              <p>
+                <strong>Clean Copy</strong> is formatted for distribution: all highlights and AI markers are
+                removed, and amber review-only content is deleted. Use it only after every yellow and amber
+                item in the Review Copy has been resolved.
+              </p>
+            </div>
           </div>
 
           <div className="bg-rose-50 border border-rose-200 rounded-lg p-4 text-left mb-6">
