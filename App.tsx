@@ -223,18 +223,35 @@ const App: React.FC = () => {
       try {
         const parsed = JSON.parse(ev.target?.result as string);
         const importedAnswers: Record<string, string> = parsed.answers || {};
-        // Only keep imported answers that match a placeholder currently on screen
-        const currentPlaceholders = new Set(questions.map((q) => q.placeholder));
+        // Only keep imported answers that match a placeholder currently on
+        // screen. Choice questions store one sentinel PER OPTION, so every
+        // choice_placeholders entry must be accepted — matching only
+        // q.placeholder (the first option) drops the sibling sentinels and
+        // leaves an invisible half-applied selection.
+        const currentPlaceholders = new Set<string>();
+        for (const q of questions) {
+          currentPlaceholders.add(q.placeholder);
+          for (const cp of q.choice_placeholders ?? []) currentPlaceholders.add(cp);
+        }
+        // A choice question's stored value must be a sentinel; a prose value
+        // keyed to an option span (legacy/hand-edited files) would render
+        // nowhere in the radio UI yet still submit — refuse those.
+        const choiceOnly = new Set<string>();
+        for (const q of questions) {
+          if (q.type === 'choice') for (const cp of q.choice_placeholders ?? []) choiceOnly.add(cp);
+        }
         const filtered: Record<string, string> = {};
         let matched = 0;
         let skipped = 0;
         for (const [ph, ans] of Object.entries(importedAnswers)) {
-          if (currentPlaceholders.has(ph)) {
-            filtered[ph] = String(ans);
-            matched++;
-          } else {
+          const v = String(ans);
+          const isSentinel = v === KEEP_OPTION || v === DELETE_OPTION;
+          if (!currentPlaceholders.has(ph) || (choiceOnly.has(ph) && !isSentinel) || (isSentinel && !choiceOnly.has(ph))) {
             skipped++;
+            continue;
           }
+          filtered[ph] = v;
+          matched++;
         }
         setAnswers((prev) => ({ ...prev, ...filtered }));
         alert(
